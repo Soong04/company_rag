@@ -1,0 +1,93 @@
+/* ============================================================================
+   自定义主题 — 覆盖 Element Plus CSS 变量
+   主色调：Indigo（靛蓝紫）
+   ============================================================================ */
+
+:root {
+  /* 主色 */
+  --el-color-primary: #6366f1;
+  --el-color-primary-light-3: #818cf8;
+  --el-color-primary-light-5: #a5b4fc;
+  --el-color-primary-light-7: #c7d2fe;
+  --el-color-primary-light-8: #ddd6fe;
+  --el-color-primary-light-9: #eef2ff;
+  --el-color-primary-dark-2: #4f46e5;
+
+  /* 辅助色 */
+  --el-color-success: #10b981;
+  --el-color-warning: #f59e0b;
+  --el-color-danger: #ef4444;
+  --el-color-info: #6b7280;
+
+  /* 圆角 */
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+
+  /* 卡片阴影 */
+  --el-box-shadow-light: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --el-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+/* 整体背景 */
+body {
+  background-color: #f8fafc;
+}
+
+/* 卡片通用样式 */
+.el-card {
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: var(--el-box-shadow-light) !important;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.el-card:hover {
+  box-shadow: var(--el-box-shadow) !important;
+}
+
+/* 表格圆角 */
+.el-table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* 标签圆角更柔和 */
+.el-tag {
+  border-radius: 6px;
+}
+
+/* 按钮微调 */
+.el-button--primary {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* 菜单选中项背景渐变（侧边栏用） */
+.el-menu-item.is-active {
+  background: linear-gradient(135deg, var(--el-color-primary-light-9), #eef2ff) !important;
+  border-right: 3px solid var(--el-color-primary);
+  color: var(--el-color-primary) !important;
+}
+
+/* 输入框聚焦 */
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--el-color-primary) inset !important;
+}
+
+/* 对话框圆角 */
+.el-dialog {
+  border-radius: 14px !important;
+}
+
+/* 卡片标题 */
+.el-card__header {
+  border-bottom: 1px solid #f1f5f9 !important;
+  font-weight: 600;
+}
+
+/* 消息气泡中的代码块 */
+.message-text pre {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: none !important;
+  border-radius: 8px !important;
+}

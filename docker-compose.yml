@@ -1,0 +1,76 @@
+# ============================================================================
+# Docker Compose — 企业知识库问答系统（DeepSeek API 版）
+# 使用: docker compose up -d
+# 注意: 无需部署 Ollama，改为调用 DeepSeek 在线 API
+# ============================================================================
+name: enterprise-qa
+
+services:
+  # ---------- MySQL 8 ----------
+  mysql:
+    image: mysql:8.0
+    container_name: eaq-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS:-root123}
+      MYSQL_DATABASE: ${DB_NAME:-db_enterprise_qa}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./server/sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./server/sql/test_data.sql:/docker-entrypoint-initdb.d/02-test_data.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASS:-root123}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ---------- Flask 后端 ----------
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: eaq-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-db_enterprise_qa}
+      DB_USER: ${DB_USER:-root}
+      DB_PASS: ${DB_PASS:-root123}
+      # DeepSeek API 配置（替换 Ollama）
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?请设置 DEEPSEEK_API_KEY 环境变量}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_LLM_MODEL: ${DEEPSEEK_LLM_MODEL:-deepseek-chat}
+      DEEPSEEK_EMBEDDING_MODEL: ${DEEPSEEK_EMBEDDING_MODEL:-deepseek-embedding}
+      SECRET_KEY: ${SECRET_KEY:-enterprise-qa-docker-secret-2024}
+      PASSWORD_SALT: ${PASSWORD_SALT:-enterprise-qa-docker-salt-2024}
+    volumes:
+      - chroma-data:/app/chroma_data
+      - upload-data:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ---------- Nginx 前端 ----------
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: eaq-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:
+  chroma-data:
+  upload-data:
