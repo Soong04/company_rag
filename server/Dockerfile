@@ -6,14 +6,17 @@ FROM python:3.11-slim AS builder
 WORKDIR /app
 
 # 安装系统依赖
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# 使用阿里云镜像加速（国内服务器）
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources 2>/dev/null; \
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list 2>/dev/null; \
+    apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 Python 依赖
+# 安装 Python 依赖（使用阿里云 PyPI 镜像加速）
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # ---------- 运行阶段 ----------
 FROM python:3.11-slim
@@ -21,7 +24,10 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # 仅复制运行时需要的系统库
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# 使用阿里云镜像加速（国内服务器）
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources 2>/dev/null; \
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list 2>/dev/null; \
+    apt-get update && apt-get install -y --no-install-recommends \
     default-libmysqlclient-dev \
     default-mysql-client \
     curl \
